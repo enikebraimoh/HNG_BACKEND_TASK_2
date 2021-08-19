@@ -13,7 +13,7 @@ func init() {
 
 func main() {
 	http.HandleFunc("/", index)
-	http.HandleFunc("/preocess", process)
+	http.HandleFunc("/process", process)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 	http.ListenAndServe(":8080", nil)
 }
@@ -23,27 +23,26 @@ func index(w http.ResponseWriter, r *http.Request) {
 	template.Execute(w, nil)
 }
 
-type Name struct {
-	FName, LName string
-}
-
 func process(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
+		t, _ := template.ParseFiles("process.html")
+		t.Execute(w, nil)
 	}
 
-	fname := r.FormValue("firster")
-	lname := r.FormValue("laster")
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	message := r.FormValue("message")
 
 	d := struct {
-		First string
-		Last  string
+		Name    string
+		Email   string
+		Message string
 	}{
-		First: fname,
-		Last:  lname,
+		Name:    name,
+		Email:   email,
+		Message: message,
 	}
 
-	tpl.ExecuteTemplate(w, "process.gohtml", d)
+	tpl.ExecuteTemplate(w, "process.html", d)
 
 }
